@@ -6,30 +6,31 @@ library(caret)
 print('loading data...')
 n_pixels <- 784
 col.types <- c('character', rep('integer', n_pixels))
-data.train <- read.csv('data/train.csv',
+data.trainraw <- read.csv('data/train.csv',
                        colClasses = col.types)
+data.train <- data.trainraw
+
 data.train$label <- factor(make.names(data.train$label))
-data.train <- data.train[1:1000,]
+
+# REMOVE LATER: limit while working through syntax
+print('trimming down to 5000 records while in dev...')
+data.train <- data.train[1:5000,]
 
 print('splitting data...')
 tri <- createDataPartition(data.train$label, p = .75, list = FALSE)
 data.test <- data.train[-tri,]
 data.train <- data.train[tri,]
 
-# REMOVE LATER: limit while working through syntax
-print('trimming down data size while in dev...')
-data.train <- data.train[1:100,]
-data.test <- data.test[1:10,]
-
 print('training model...')
-tg <- expand.grid(.size = c(floor(n_pixels/4)))
+tg <- expand.grid(.size = c(floor(25)), 
+                  .decay = c(0))
 
 tr.ctrl <- trainControl(method = "repeatedcv",
                         repeats = 3,
                         classProbs = TRUE,
                         summaryFunction = multiClassSummary)
 
-X <- data.train[, -1]
+X <- data.matrix(data.train[, -1])
 y <- data.train[, 1]
 
 model <- train(X,
@@ -42,7 +43,8 @@ model <- train(X,
 print(model)
 
 print('applying model...')
-data.test$output <- predict(model, data.test)
+XT <- data.matrix(data.test[, -1])
+data.test$output <- predict(model, XT)
 
 print('summarizing results...')
-print(confusionMatrix(data.test$output, data.test$label))
+print(caret::confusionMatrix(data.test$output, data.test$label))
