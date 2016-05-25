@@ -18,11 +18,11 @@ data.train <- data.train[tri,]
 
 # REMOVE LATER: limit while working through syntax
 print('trimming down data size while in dev...')
-data.train <- data.train[1:200,] 
-data.test <- data.test[1:100,]
+data.train <- data.train[1:100,]
+data.test <- data.test[1:10,]
 
 print('training model...')
-tg <- expand.grid(.size = c(n_pixels))
+tg <- expand.grid(.size = c(floor(n_pixels/4)))
 
 tr.ctrl <- trainControl(method = "repeatedcv",
                         repeats = 3,
