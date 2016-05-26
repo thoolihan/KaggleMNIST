@@ -1,5 +1,5 @@
 library(doMC)
-registerDoMC(cores = 6)
+registerDoMC(cores = detectCores() - 1)
 library(plyr)
 library(caret)
 
@@ -47,4 +47,6 @@ XT <- data.matrix(data.test[, -1])
 data.test$output <- predict(model, XT)
 
 print('summarizing results...')
-print(caret::confusionMatrix(data.test$output, data.test$label))
+results <- caret::confusionMatrix(data.test$output, data.test$label)
+print(results)
+write(results, file = "R/output/results.txt")
