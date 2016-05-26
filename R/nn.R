@@ -14,7 +14,7 @@ data.train$label <- factor(make.names(data.train$label))
 
 # REMOVE LATER: limit while working through syntax
 print('trimming down to 5000 records while in dev...')
-data.train <- data.train[1:5000,]
+data.train <- data.train[1:2500,]
 
 print('splitting data...')
 tri <- createDataPartition(data.train$label, p = .75, list = FALSE)
@@ -22,8 +22,7 @@ data.test <- data.train[-tri,]
 data.train <- data.train[tri,]
 
 print('training model...')
-tg <- expand.grid(.size = c(floor(25)), 
-                  .decay = c(0))
+tg <- expand.grid(.size = c(floor(25)))
 
 tr.ctrl <- trainControl(method = "repeatedcv",
                         repeats = 3,
@@ -49,4 +48,4 @@ data.test$output <- predict(model, XT)
 print('summarizing results...')
 results <- caret::confusionMatrix(data.test$output, data.test$label)
 print(results)
-write(results, file = "R/output/results.txt")
+write(paste('Accuracy', results$overall[['Accuracy']]), file = "R/output/results.txt")
