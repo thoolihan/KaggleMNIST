@@ -23,7 +23,7 @@ display_step = 100
 x_all = np.loadtxt('../data/train.csv',
                delimiter = ',',
                skiprows = 1,
-               dtype = np.int64,
+               dtype = np.float64,
                usecols = range(0, n_features + 1))
 
 # NEED TO GENERATE RANDOM INDEXES INSTEAD
