@@ -31,10 +31,10 @@ x_all = np.loadtxt('../data/train.csv',
 
 n_total = x_all.shape[0]
 split = int(ratio * n_total)
-n_hidden_1 = np.floor(n_features / 2)
-n_hidden_2 = np.floor(n_features / 2)
-n_hidden_3 = n_features
-n_hidden_4 = n_features
+n_hidden_1 = np.int32(np.floor(n_features / 2))
+n_hidden_2 = np.int32(np.floor(n_features / 2))
+n_hidden_3 = np.int32(np.floor(n_features / 2))
+n_hidden_4 = np.int32(np.floor(n_features / 2))
 
 y_all = np.zeros((n_total, n_classes), np.float32)
 digits = x_all[:, label_index]
