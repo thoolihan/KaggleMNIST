@@ -89,7 +89,7 @@ optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost) #
 init = tf.initialize_all_variables()
 
 with tf.Session() as sess:
-    train_writer = tf.train.SummaryWriter('logs/', sess.graph)
+    train_writer = tf.train.SummaryWriter('logs/train', sess.graph)
     sess.run(init)
 
     batches = int(n / batch_size)

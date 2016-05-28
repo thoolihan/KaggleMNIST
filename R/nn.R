@@ -13,8 +13,8 @@ data.train <- data.trainraw
 data.train$label <- factor(make.names(data.train$label))
 
 # REMOVE LATER: limit while working through syntax
-print('trimming down to 5000 records while in dev...')
-data.train <- data.train[1:2500,]
+#print('trimming down to 5000 records while in dev...')
+#data.train <- data.train[1:2500,]
 
 print('splitting data...')
 tri <- createDataPartition(data.train$label, p = .75, list = FALSE)
