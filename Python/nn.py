@@ -66,15 +66,15 @@ def nn(_X, _weights, _biases, _dropout):
 weights = {
     'h1': tf.Variable(tf.random_uniform([n_features, n_hidden_1], -1.0, 1.0)),
     'h2': tf.Variable(tf.random_uniform([n_hidden_1, n_hidden_2], -1.0, 1.0)),
-    # 'h3': tf.Variable(tf.random_uniform([n_hidden_2, n_hidden_3], -1.0, 1.0)),
-    # 'h4': tf.Variable(tf.random_uniform([n_hidden_3, n_hidden_4], -1.0, 1.0)),
+#    'h3': tf.Variable(tf.random_uniform([n_hidden_2, n_hidden_3], -1.0, 1.0)),
+#    'h4': tf.Variable(tf.random_uniform([n_hidden_3, n_hidden_4], -1.0, 1.0)),
     'out': tf.Variable(tf.random_uniform([n_hidden_2, n_classes], -1.0, 1.0))
 }
 biases = {
     'b1': tf.Variable(tf.random_uniform([n_hidden_1], -1.0, 1.0)),
     'b2': tf.Variable(tf.random_uniform([n_hidden_2], -1.0, 1.0)),
-#    'b3': tf.Variable(tf.random_uniform([n_hidden_3], -1.0, 1.0)),
-#    'b4': tf.Variable(tf.random_uniform([n_hidden_4], -1.0, 1.0)),
+    'b3': tf.Variable(tf.random_uniform([n_hidden_3], -1.0, 1.0)),
+    'b4': tf.Variable(tf.random_uniform([n_hidden_4], -1.0, 1.0)),
     'out': tf.Variable(tf.random_uniform([n_classes], -1.0, 1.0))
 }
 
@@ -83,14 +83,18 @@ pred = nn(x, weights, biases, dropout)
 
 # Define loss and optimizer
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y)) # Softmax loss
+tf.scalar_summary('cost', cost)
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost) # Adam Optimizer
 
 init = tf.initialize_all_variables()
 
 with tf.Session() as sess:
+    train_writer = tf.train.SummaryWriter('logs/', sess.graph)
     sess.run(init)
 
     batches = int(n / batch_size)
+    merged = tf.merge_all_summaries()
+
     for epoch in xrange(training_epochs + 1):
         avg_cost = 0.0
         for step in range(batches):
@@ -101,6 +105,8 @@ with tf.Session() as sess:
             batch_cost, _ = sess.run([cost, optimizer], feed_dict = feed)
             avg_cost += batch_cost
         if epoch % display_step == 0 or epoch == training_epochs:
+            summary = sess.run(merged, feed_dict = feed)
+            train_writer.add_summary(summary, step)
             print 'epoch: %05d' % epoch, 'cost:', '{:.9f}'.format(avg_cost / batches)
 
     print("Optimization Complete")
