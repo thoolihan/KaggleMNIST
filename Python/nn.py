@@ -123,4 +123,4 @@ with tf.Session() as sess:
                         usecols = range(0, n_features))
 
     test_output = nn(x_test, weights, biases, dropout)
-    output = sess.run(test_output)
+    output = sess.run(test_output, feed_dict = {dropout: keep_prob})
