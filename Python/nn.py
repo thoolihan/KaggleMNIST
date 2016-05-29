@@ -92,7 +92,7 @@ with tf.Session() as sess:
     train_writer = tf.train.SummaryWriter('logs/', sess.graph)
     sess.run(init)
 
-    batches = int(n / batch_size)
+    batches = int(np.ceil(n / batch_size))
     merged = tf.merge_all_summaries()
 
     for epoch in xrange(training_epochs + 1):
@@ -106,7 +106,7 @@ with tf.Session() as sess:
             avg_cost += batch_cost
         if epoch % display_step == 0 or epoch == training_epochs:
             summary = sess.run(merged, feed_dict = feed)
-            train_writer.add_summary(summary, step)
+            train_writer.add_summary(summary, epoch)
             print 'epoch: %05d' % epoch, 'cost:', '{:.9f}'.format(avg_cost / batches)
 
     print("Optimization Complete")
@@ -115,4 +115,11 @@ with tf.Session() as sess:
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
     print "Accuracy:", accuracy.eval({x: x_test, y: y_test, dropout: 1.0})
 
-# write results
+    # write results
+    x_test = np.loadtxt('../data/test/.csv',
+                        delimiter = ',',
+                        skiprows = 1,
+                        dtype = np.float64,
+                        usecols = range(0, n_features))
+
+    output = nn(x_test, weights, biases, dropout)
