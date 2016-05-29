@@ -122,4 +122,5 @@ with tf.Session() as sess:
                         dtype = np.float32,
                         usecols = range(0, n_features))
 
-    output = nn(x_test, weights, biases, dropout)
+    test_output = nn(x_test, weights, biases, dropout)
+    output = sess.run(test_output)
