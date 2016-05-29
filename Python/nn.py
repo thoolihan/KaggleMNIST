@@ -9,7 +9,7 @@ def get_step_indexes(step, batch_size, n):
     return (start, stop)
 
 ratio = 0.7
-batch_size = 1000
+batch_size = 500
 n_features = 784
 label_index = 0
 feature_index = range(0, n_features + 1)
@@ -17,7 +17,7 @@ feature_index.remove(label_index)
 n_classes = 10
 learning_rate = 0.003
 keep_prob = 0.7
-training_epochs = 1000
+training_epochs = 500
 display_step = 100
 
 x_all = np.loadtxt('../data/train.csv',
@@ -116,7 +116,7 @@ with tf.Session() as sess:
     print "Accuracy:", accuracy.eval({x: x_test, y: y_test, dropout: 1.0})
 
     # write results
-    x_test = np.loadtxt('../data/test/.csv',
+    x_test = np.loadtxt('../data/test.csv',
                         delimiter = ',',
                         skiprows = 1,
                         dtype = np.float64,
