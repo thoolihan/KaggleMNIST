@@ -23,7 +23,7 @@ display_step = 100
 x_all = np.loadtxt('../data/train.csv',
                delimiter = ',',
                skiprows = 1,
-               dtype = np.float64,
+               dtype = np.float32,
                usecols = range(0, n_features + 1))
 
 # NEED TO GENERATE RANDOM INDEXES INSTEAD
@@ -119,7 +119,7 @@ with tf.Session() as sess:
     x_test = np.loadtxt('../data/test.csv',
                         delimiter = ',',
                         skiprows = 1,
-                        dtype = np.float64,
+                        dtype = np.float32,
                         usecols = range(0, n_features))
 
     output = nn(x_test, weights, biases, dropout)
