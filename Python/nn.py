@@ -1,5 +1,8 @@
 import tensorflow as tf
 import numpy as np
+import pandas as pd
+import time
+
 
 def get_step_indexes(step, batch_size, n):
     start = (step * batch_size) % n
@@ -9,15 +12,15 @@ def get_step_indexes(step, batch_size, n):
     return (start, stop)
 
 ratio = 0.7
-batch_size = 500
+batch_size = 1000
 n_features = 784
 label_index = 0
 feature_index = range(0, n_features + 1)
 feature_index.remove(label_index)
 n_classes = 10
-learning_rate = 0.003
-keep_prob = 0.7
-training_epochs = 500
+learning_rate = 0.001
+keep_prob = 0.98
+training_epochs = 2000
 display_step = 100
 
 x_all = np.loadtxt('../data/train.csv',
@@ -26,15 +29,13 @@ x_all = np.loadtxt('../data/train.csv',
                dtype = np.float32,
                usecols = range(0, n_features + 1))
 
-# NEED TO GENERATE RANDOM INDEXES INSTEAD
-# np.random.shuffle(x_all)
+np.random.shuffle(x_all)
 
 n_total = x_all.shape[0]
 split = int(ratio * n_total)
 n_hidden_1 = np.int32(np.floor(n_features / 2))
 n_hidden_2 = np.int32(np.floor(n_features / 2))
 n_hidden_3 = np.int32(np.floor(n_features / 2))
-n_hidden_4 = np.int32(np.floor(n_features / 2))
 
 y_all = np.zeros((n_total, n_classes), np.float32)
 digits = x_all[:, label_index]
@@ -56,25 +57,21 @@ def nn(_X, _weights, _biases, _dropout):
     layer_1 = tf.nn.dropout(layer_1, _dropout)
     layer_2 = tf.nn.relu(tf.add(tf.matmul(layer_1, _weights['h2']), _biases['b2']))
     layer_2 = tf.nn.dropout(layer_2, _dropout)
-    # layer_3 = tf.nn.relu(tf.add(tf.matmul(layer_2, _weights['h3']), _biases['b3']))
-    # layer_3 = tf.nn.dropout(layer_3, _dropout)
-    # layer_4 = tf.nn.relu(tf.add(tf.matmul(layer_3, _weights['h4']), _biases['b4']))
-    # layer_4 = tf.nn.dropout(layer_4, _dropout)
-    return tf.matmul(layer_2, _weights['out']) + _biases['out']
+    layer_3 = tf.nn.relu(tf.add(tf.matmul(layer_2, _weights['h3']), _biases['b3']))
+    layer_3 = tf.nn.dropout(layer_3, _dropout)
+    return tf.matmul(layer_3, _weights['out']) + _biases['out']
 
 # Store layers weight & bias
 weights = {
     'h1': tf.Variable(tf.random_uniform([n_features, n_hidden_1], -1.0, 1.0)),
     'h2': tf.Variable(tf.random_uniform([n_hidden_1, n_hidden_2], -1.0, 1.0)),
-#    'h3': tf.Variable(tf.random_uniform([n_hidden_2, n_hidden_3], -1.0, 1.0)),
-#    'h4': tf.Variable(tf.random_uniform([n_hidden_3, n_hidden_4], -1.0, 1.0)),
+    'h3': tf.Variable(tf.random_uniform([n_hidden_2, n_hidden_3], -1.0, 1.0)),
     'out': tf.Variable(tf.random_uniform([n_hidden_2, n_classes], -1.0, 1.0))
 }
 biases = {
     'b1': tf.Variable(tf.random_uniform([n_hidden_1], -1.0, 1.0)),
     'b2': tf.Variable(tf.random_uniform([n_hidden_2], -1.0, 1.0)),
     'b3': tf.Variable(tf.random_uniform([n_hidden_3], -1.0, 1.0)),
-    'b4': tf.Variable(tf.random_uniform([n_hidden_4], -1.0, 1.0)),
     'out': tf.Variable(tf.random_uniform([n_classes], -1.0, 1.0))
 }
 
@@ -115,12 +112,25 @@ with tf.Session() as sess:
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
     print "Accuracy:", accuracy.eval({x: x_test, y: y_test, dropout: 1.0})
 
-    # write results
+    print("loading set for submission")
     x_test = np.loadtxt('../data/test.csv',
                         delimiter = ',',
                         skiprows = 1,
                         dtype = np.float32,
                         usecols = range(0, n_features))
 
+    print("predicting against submission set")
     test_output = nn(x_test, weights, biases, dropout)
     output = sess.run(test_output, feed_dict = {x: x_test, dropout: keep_prob})
+
+    labels = np.argmax(output, 1)
+    image_ids = np.array(range(1, labels.shape[0] + 1))
+    results = np.transpose(np.matrix([image_ids, labels]))
+
+    print("writing submission file")
+    df = pd.DataFrame(results, columns = ('ImageId', 'Label'))
+    dstring = time.strftime('%Y.%m.%d.%H.%M.%S', time.gmtime())
+    filename = 'output/nn.' + dstring + '.csv'
+    df.to_csv(filename, index = False)
+    print("wrote " + filename)
+    print("done")
