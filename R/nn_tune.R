@@ -7,8 +7,11 @@ library(nnet)
 source('./R/downsize.R')
 source('./R/load.R')
 
+data.train <- data.raw
+data.train$label <- factor(make.names(data.train$label))
+
 # REMOVE LATER: limit while working through syntax
-data.train <- raw[sample(nrow(raw), 1e4),]
+data.train <- data.train[sample(nrow(data.train), 1e4),]
 
 print('splitting data...')
 tri <- createDataPartition(data.train$label, p = .75, list = FALSE)
