@@ -5,6 +5,7 @@ library(nnet)
 
 source('./R/downsize.R')
 source('./R/load.R')
+data.train <- data.raw
 
 print('splitting data...')
 tri <- createDataPartition(data.train$label, p = .75, list = FALSE)
@@ -15,22 +16,14 @@ X <- data.matrix(data.train[, -1])
 y <- data.train[, 1]
 
 print('training model...')
-tg <- data.frame(.size = c(4),
-                  .decay = c(4.75))
 
-tr.ctrl <- trainControl(method = "cv",
-                        number = 3,
-                        classProbs = TRUE,
-                        summaryFunction = multiClassSummary)
-
-model <- train(X,
-               y,
-               method = "nnet",
-               tuneGrid = tg,
-               preProcess = c('center', 'scale'),
-               trControl = tr.ctrl)
-
-print(model)
+model <- multinom(
+              x = X,
+              y = y,
+              data = data.train,
+              decay = 4.75,
+              size = 4,
+              MaxNWts = 5000)
 
 print('applying model...')
 XT <- data.matrix(data.test[, -1])
